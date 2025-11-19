@@ -71,13 +71,13 @@
   📡 Dashboard ESP32 – Dark Mode Premium
 </h1>
 
-<!-- Top Stats -->
+<!-- TOP STATS (Corrente | Tensão) -->
 <div class="grid">
   <div class="card">
-    <h2>Distância (cm)</h2>
-    <div class="stat-line">Média: <span class="green" id="mDist"></span></div>
-    <div class="stat-line">Máximo: <span class="green" id="xDist"></span></div>
-    <div class="stat-line">Mínimo: <span class="green" id="nDist"></span></div>
+    <h2>Corrente (mA)</h2>
+    <div class="stat-line">Média: <span class="green" id="mCorr"></span></div>
+    <div class="stat-line">Máximo: <span class="green" id="xCorr"></span></div>
+    <div class="stat-line">Mínimo: <span class="green" id="nCorr"></span></div>
   </div>
 
   <div class="card">
@@ -88,11 +88,11 @@
   </div>
 </div>
 
-<!-- 2 Charts -->
+<!-- CHARTS Corrente | Tensão -->
 <div class="grid">
   <div class="card">
-    <h2>Distância (cm)</h2>
-    <div class="chart-box"><canvas id="gDist"></canvas></div>
+    <h2>Corrente (mA)</h2>
+    <div class="chart-box"><canvas id="gCorr"></canvas></div>
   </div>
 
   <div class="card">
@@ -101,40 +101,40 @@
   </div>
 </div>
 
-<!-- 2 Charts -->
+<!-- CHARTS Potência | Distância -->
 <div class="grid">
-  <div class="card">
-    <h2>Corrente (mA)</h2>
-    <div class="chart-box"><canvas id="gCorr"></canvas></div>
-  </div>
-
   <div class="card">
     <h2>Potência (mW)</h2>
     <div class="chart-box"><canvas id="gPot"></canvas></div>
   </div>
+
+  <div class="card">
+    <h2>Distância (cm)</h2>
+    <div class="chart-box"><canvas id="gDist"></canvas></div>
+  </div>
 </div>
 
-<!-- Bottom Stats -->
+<!-- BOTTOM STATS (Potência | Distância) -->
 <div class="grid">
-  <div class="card">
-    <h2>Corrente (mA)</h2>
-    <div class="stat-line">Média: <span class="green" id="mCorr"></span></div>
-    <div class="stat-line">Máximo: <span class="green" id="xCorr"></span></div>
-    <div class="stat-line">Mínimo: <span class="green" id="nCorr"></span></div>
-  </div>
-
   <div class="card">
     <h2>Potência (mW)</h2>
     <div class="stat-line">Média: <span class="green" id="mPot"></span></div>
     <div class="stat-line">Máximo: <span class="green" id="xPot"></span></div>
     <div class="stat-line">Mínimo: <span class="green" id="nPot"></span></div>
   </div>
+
+  <div class="card">
+    <h2>Distância (cm)</h2>
+    <div class="stat-line">Média: <span class="green" id="mDist"></span></div>
+    <div class="stat-line">Máximo: <span class="green" id="xDist"></span></div>
+    <div class="stat-line">Mínimo: <span class="green" id="nDist"></span></div>
+  </div>
 </div>
 
 <script>
   // Firebase
   const firebaseConfig = {
-    apiKey: "api_key",
+    // apiKey: "api_key",
     authDomain: "upkeepnow-6ec42.firebaseapp.com",
     databaseURL: "https://upkeepnow-6ec42-default-rtdb.firebaseio.com/",
     projectId: "upkeepnow-6ec42",
@@ -187,7 +187,7 @@
     document.getElementById("n"+pre).innerText = Math.min(...arr).toFixed(2);
   }
 
-  // Listener
+  // Listener em tempo real
   db.ref("/monitoramento").on("child_added", snap => {
     const d = snap.val();
     labels.push("");
