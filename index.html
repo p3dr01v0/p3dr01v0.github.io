@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Monitoramento ESP32</title>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    body {
+      font-family: Arial;
+      margin: 20px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+
+    .card {
+      background: #f7f7f7;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    .chart-box {
+      width: 450px;
+      height: 230px;
+      margin: auto;
+    }
+
+    canvas {
+      max-width: 100%;
+      max-height: 100%;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>📡 Dashboard ESP32 em Tempo Real</h1>
+
+  <!-- Estatísticas -->
+  <div class="grid">
+    <div class="card">
+      <h3>Distância (cm)</h3>
+      Média: <span id="mDist"></span><br>
+      Máximo: <span id="xDist"></span><br>
+      Mínimo: <span id="nDist"></span>
+    </div>
+    <div class="card">
+      <h3>Tensão (V)</h3>
+      Média: <span id="mVolt"></span><br>
+      Máximo: <span id="xVolt"></span><br>
+      Mínimo: <span id="nVolt"></span>
+    </div>
+
+    <div class="card">
+      <h3>Corrente (mA)</h3>
+      Média: <span id="mCorr"></span><br>
+      Máximo: <span id="xCorr"></span><br>
+      Mínimo: <span id="nCorr"></span>
+    </div>
+
+    <div class="card">
+      <h3>Potência (mW)</h3>
+      Média: <span id="mPot"></span><br>
+      Máximo: <span id="xPot"></span><br>
+      Mínimo: <span id="nPot"></span>
+    </div>
+  </div>
+
+  <hr><br>
+
+  <!-- Gráficos -->
+  <div class="grid">
+    <div class="chart-box"><canvas id="gDist"></canvas></div>
+    <div class="chart-box"><canvas id="gVolt"></canvas></div>
+    <div class="chart-box"><canvas id="gCorr"></canvas></div>
+    <div class="chart-box"><canvas id="gPot"></canvas></div>
+  </div>
+
+<script>
+  // 🔥 Config do Firebase
+  const firebaseConfig = {
+    apiKey: "AIzaSyAnq_P2aDF3jQLppVtgYBjACbs2XnTaSes",
+    authDomain: "upkeepnow-6ec42.firebaseapp.com",
+    databaseURL: "https://upkeepnow-6ec42-default-rtdb.firebaseio.com/",
+    projectId: "upkeepnow-6ec42",
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+
+  // Arrays para armazenar os dados
+  let distArr = [], voltArr = [], corrArr = [], potArr = [];
+  let labels = [];
+
+  // Criar os gráficos
+  function novoGrafico(id, label) {
+    return new Chart(document.getElementById(id), {
+      type: "line",
+      data: {
+        labels: labels,
+        datasets: [{
+          label: label,
+          data: [],
+          borderWidth: 2
+        }]
+      }
+    });
+  }
+
+  const gDist = novoGrafico("gDist", "Distância (cm)");
+  const gVolt = novoGrafico("gVolt", "Tensão (V)");
+  const gCorr = novoGrafico("gCorr", "Corrente (mA)");
+  const gPot  = novoGrafico("gPot",  "Potência (mW)");
+
+  // Atualiza estatísticas
+  function stats(arr, pre) {
+    if (arr.length === 0) return;
+    document.getElementById("m"+pre).innerText = (arr.reduce((a,b)=>a+b)/arr.length).toFixed(2);
+    document.getElementById("x"+pre).innerText = Math.max(...arr).toFixed(2);
+    document.getElementById("n"+pre).innerText = Math.min(...arr).toFixed(2);
+  }
+
+  // Ouvindo dados em tempo real
+  db.ref("/monitoramento").on("child_added", snap => {
+    const d = snap.val();
+
+    labels.push("");
+
+    distArr.push(d.distancia_cm);
+    voltArr.push(d.tensao_V);
+    corrArr.push(d.corrente_mA);
+    potArr.push(d.potencia_mW);
+
+    gDist.data.datasets[0].data = distArr;
+    gVolt.data.datasets[0].data = voltArr;
+    gCorr.data.datasets[0].data = corrArr;
+    gPot.data.datasets[0].data  = potArr;
+
+    gDist.update();
+    gVolt.update();
+    gCorr.update();
+    gPot.update();
+
+    stats(distArr, "Dist");
+    stats(voltArr, "Volt");
+    stats(corrArr, "Corr");
+    stats(potArr,  "Pot");
+  });
+</script>
+
+</body>
+</html>
